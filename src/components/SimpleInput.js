@@ -1,29 +1,42 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect } from "react";
 
 const SimpleInput = (props) => {
   const [enteredName, setEnteredName] = useState("");
-  const [enteredNameIsvalid, setEnteredNameIsvalid] = useState(false);
   const [enteredNameTouched, setEnteredNameTouched] = useState(false);
+  const [formIsValid, setFormIsValid] = useState(false);
+
+  const enteredNameIsvalid = enteredName.trim() !== "";
+  const nameInputIsInvalid = !enteredNameIsvalid && enteredNameTouched;
+
+  useEffect(() => {
+    if (enteredNameIsvalid) {
+      setFormIsValid(true);
+    } else {
+      setFormIsValid(false);
+    }
+  }, [enteredNameIsvalid]);
 
   const nameChangeHandler = (event) => {
     setEnteredName(event.target.value);
+  };
+
+  const nameBlurHandler = () => {
+    console.log("Onblur called..");
+    setEnteredNameTouched(true);
   };
 
   const formSubmissionHandler = (event) => {
     event.preventDefault();
     setEnteredNameTouched(true);
 
-    if (enteredName.trim() === "") {
-      setEnteredNameIsvalid(false);
+    if (!enteredNameIsvalid) {
       return;
     }
-    setEnteredNameIsvalid(true);
 
     console.log(enteredName);
     setEnteredName("");
+    setEnteredNameTouched(false);
   };
-
-  const nameInputIsInvalid = !enteredNameIsvalid && enteredNameTouched;
 
   const nameInputClasses = nameInputIsInvalid
     ? "form-control invalid"
@@ -37,6 +50,7 @@ const SimpleInput = (props) => {
           type="text"
           id="name"
           onChange={nameChangeHandler}
+          onBlur={nameBlurHandler}
           value={enteredName}
         />
         {nameInputIsInvalid && (
@@ -44,7 +58,7 @@ const SimpleInput = (props) => {
         )}
       </div>
       <div className="form-actions">
-        <button>Submit</button>
+        <button disabled={!formIsValid}>Submit</button>
       </div>
     </form>
   );
